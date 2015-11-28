@@ -2,12 +2,12 @@ import evdev
 import requests
 import json
 import datetime
+import yaml
 
-# TODO: These should go into a configuration file
-DEVICE_PATH = '/dev/input/event0'
-URL = 'http://requestb.in/1b2bo6r1'
+with open('config.yml', 'r') as f:
+  config = yaml.safe_load(f.read())
 
-dev = evdev.InputDevice(DEVICE_PATH)
+dev = evdev.InputDevice(config['device_path'])
 print('Capturing device: ' + str(dev))
 
 for event in dev.read_loop():
@@ -20,5 +20,5 @@ for event in dev.read_loop():
       'state': {0: 'up', 1: 'down', 2: 'hold'}[event.keystate]
     }
     print(payload)
-    r = requests.post(URL, json.dumps(payload))
+    r = requests.post(config['post_url'], json.dumps(payload))
     print(str(datetime.datetime.now()) + ' - ' + str(r))
