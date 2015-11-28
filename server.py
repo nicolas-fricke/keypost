@@ -12,7 +12,6 @@ def main():
 
   for event in dev.read_loop():
     if event.type == evdev.ecodes.EV_KEY:
-      event = evdev.categorize(event)
       output_line(event)
       payload = build_payload(event)
       output_line('Sending ' + str(payload) + ' to ' + config['post_url'])
@@ -20,10 +19,12 @@ def main():
       output_line(response)
 
 def build_payload(event):
+  event = evdev.categorize(event)
   return {
     'code': event.scancode,
     'key': event.keycode[0] if type(event.keycode) == list else event.keycode,
-    'state': {0: 'UP', 1: 'DOWN', 2: 'HOLD'}[event.keystate]
+    'state': {0: 'UP', 1: 'DOWN', 2: 'HOLD'}[event.keystate],
+    'captured_at': datetime.datetime.fromtimestamp(event.event.timestamp()).isoformat()
   }
 
 def load_config():
