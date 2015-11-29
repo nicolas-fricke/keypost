@@ -3,3 +3,10 @@ device_path: /dev/input/event0
 
 # URL the requests will be POSTed to
 post_url: http://my-server.example.com/post_endpoint
+
+# Whitelist only certain events. To allow any type, remove state filter.
+event_filters:
+  states:
+    - DOWN
+    # - UP
+    # - HOLD

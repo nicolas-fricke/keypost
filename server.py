@@ -14,9 +14,12 @@ def main():
     if event.type == evdev.ecodes.EV_KEY:
       output_line(event)
       payload = build_payload(event)
-      output_line('Sending ' + str(payload) + ' to ' + config['post_url'])
-      response = requests.post(config['post_url'], json.dumps(payload))
-      output_line(response)
+      if is_to_be_logged(payload, config):
+        output_line('Sending ' + str(payload) + ' to ' + config['post_url'])
+        response = requests.post(config['post_url'], json.dumps(payload))
+        output_line(response)
+      else:
+        output_line('Not sending ' + str(payload) + ' since it is not whitelisted')
 
 def build_payload(event):
   event = evdev.categorize(event)
@@ -26,6 +29,12 @@ def build_payload(event):
     'state': {0: 'UP', 1: 'DOWN', 2: 'HOLD'}[event.keystate],
     'captured_at': datetime.datetime.fromtimestamp(event.event.timestamp()).isoformat()
   }
+
+def is_to_be_logged(payload, config):
+  filters = config.get('event_filters', None)
+  if not filters: return True
+  state_filters = filters.get('states', [])
+  return payload['state'] in state_filters
 
 def load_config():
   with open('config.yml', 'r') as f:
