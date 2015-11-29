@@ -1,8 +1,10 @@
 # Path to the device which is to be listened to
 device_path: /dev/input/event0
 
-# URL the requests will be POSTed to
-post_url: http://my-server.example.com/post_endpoint
+# URL the requests will be POSTed to. The URL can also contain placeholders from
+# the payload (using Python string interpolation) – see README.md for more
+# explanation
+post_url: http://my-server.example.com/post_endpoint/%(key)s_%(state)s
 
 # Whitelist only certain events. To allow any type, remove state filter.
 event_filters:

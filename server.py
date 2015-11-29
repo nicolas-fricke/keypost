@@ -15,11 +15,19 @@ def main():
       output_line(event)
       payload = build_payload(event)
       if is_to_be_logged(payload, config):
-        output_line('Sending ' + str(payload) + ' to ' + config['post_url'])
-        response = requests.post(config['post_url'], json.dumps(payload))
+        url = build_url(config['post_url'], payload)
+        output_line('Sending ' + str(payload) + ' to ' + url)
+        response = requests.post(url, json.dumps(payload))
         output_line(response)
       else:
         output_line('Not sending ' + str(payload) + ' since it is not whitelisted')
+
+def load_config():
+  with open('config.yml', 'r') as f:
+    return yaml.safe_load(f.read())
+
+def build_url(base_url, payload):
+  return base_url % payload
 
 def build_payload(event):
   event = evdev.categorize(event)
@@ -35,10 +43,6 @@ def is_to_be_logged(payload, config):
   if not filters: return True
   state_filters = filters.get('states', [])
   return payload['state'] in state_filters
-
-def load_config():
-  with open('config.yml', 'r') as f:
-    return yaml.safe_load(f.read())
 
 def timestamp_s():
   return '[' + str(datetime.datetime.now()) + ']'
